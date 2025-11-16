@@ -1,0 +1,10 @@
+Flask
+Flask-SQLAlchemy
+Flask-RESTful
+Werkzeug
+Flask-CORS
+flasgger
+Flask-JWT-Extended
+Flask-Bcrypt
+flask-marshmallow
+marshmallow-sqlalchemy
