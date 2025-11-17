@@ -16,22 +16,16 @@ class LogService:
             raise e
 
     @staticmethod
-    def create_log(action: str, details: str, user_id: str = None): # Aceita user_id
-        """
-        Cria um novo registro de log.
-        """
+    def create_log(action: str, details: str, user_id: str = None):
         try:
             new_log = Log(
                 action=action, 
                 details=details,
-                user_id=user_id # Passa o user_id para o construtor do Log
+                user_id=user_id 
             )
             db.session.add(new_log)
             db.session.commit()
             
         except Exception as e:
             db.session.rollback()
-            # Este é o erro que você está vendo:
             print(f"CRITICAL: Error in LogService.create_log: {e}")
-            # Não vamos mais levantar o erro, para não quebrar a requisição principal
-            # raise e

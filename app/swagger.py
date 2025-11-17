@@ -1,12 +1,3 @@
-"""Build a minimal OpenAPI template from Marshmallow schemas.
-
-This module creates an OpenAPI template dict using the Marshmallow
-schemas defined in `app.schemas`. It intentionally avoids changing
-controllers: no YAML docstrings are required in resource methods.
-
-We only implement a small type mapper sufficient for the Ticket schemas.
-If you add more schemas, extend `FIELD_TYPE_MAP` or add custom handling.
-"""
 from typing import Dict, Any
 from marshmallow import Schema, fields
 
@@ -14,6 +5,8 @@ from app.schemas.ticket import (
     TicketCreateSchema,
     TicketSchema,
     UserSchema,
+    # Importar o LogSchema que criamos
+    LogSchema, 
 )
 
 
@@ -28,7 +21,6 @@ FIELD_TYPE_MAP = {
 
 
 def _field_to_schema(field: fields.Field) -> Dict[str, Any]:
-    """Convert a Marshmallow field to a JSON Schema fragment."""
     fname = field.__class__.__name__
     if fname == 'List':
         inner = getattr(field, 'inner', None)
@@ -43,7 +35,6 @@ def _field_to_schema(field: fields.Field) -> Dict[str, Any]:
 
 
 def _schema_to_definition(schema_cls: Schema) -> Dict[str, Any]:
-    """Create an OpenAPI schema definition from a Marshmallow Schema class."""
     schema = schema_cls()
     props: Dict[str, Any] = {}
     required = []
@@ -59,20 +50,15 @@ def _schema_to_definition(schema_cls: Schema) -> Dict[str, Any]:
 
 
 def build_swagger_template() -> Dict[str, Any]:
-    """Return an OpenAPI template dict ready to pass to Flasgger.
-
-    This includes components/schemas and a small set of path definitions for
-    the ticket endpoints used by this app.
-    """
+    
+    # 1. ADICIONAR LOG ÀS DEFINIÇÕES
     definitions = {
         'Ticket': _schema_to_definition(TicketSchema),
         'TicketCreate': _schema_to_definition(TicketCreateSchema),
         'User': _schema_to_definition(UserSchema),
+        'Log': _schema_to_definition(LogSchema), # <--- NOVO
     }
 
-    # Use Swagger 2.0 format because Flasgger may merge in a `swagger: "2.0"`
-    # field internally; producing a v2 template avoids the "swagger and openapi"
-    # fields conflict when Flasgger renders the UI.
     template: Dict[str, Any] = {
         'swagger': '2.0',
         'info': {
@@ -89,9 +75,11 @@ def build_swagger_template() -> Dict[str, Any]:
             }
         },
         'paths': {
+            # 1. ROTA DE CRIAÇÃO DE TICKET
             '/tickets': {
                 'post': {
                     'tags': ['Tickets'],
+                    'summary': 'Creates a new ticket in the system.', # TRADUÇÃO
                     'security': [{'bearerAuth': []}],
                     'parameters': [
                         {
@@ -104,13 +92,16 @@ def build_swagger_template() -> Dict[str, Any]:
                     'responses': {
                         '201': {'description': 'Ticket created', 'schema': {'$ref': '#/definitions/Ticket'}},
                         '400': {'description': 'Missing or invalid fields'},
+                        '401': {'description': 'Unauthorized'}, # TRADUÇÃO
                         '500': {'description': 'Internal server error'},
                     },
                 }
             },
+            # 2. ROTA DE AUTENTICAÇÃO (LOGIN)
             '/auth': {
                 'post': {
                     'tags': ['Auth'],
+                    'summary': 'Authenticates a user and returns the JWT.', # TRADUÇÃO
                     'parameters': [
                         {
                             'in': 'body',
@@ -128,7 +119,7 @@ def build_swagger_template() -> Dict[str, Any]:
                     ],
                     'responses': {
                         '200': {
-                            'description': 'Returns access token',
+                            'description': 'Returns access token and user data.', # TRADUÇÃO
                             'schema': {'type': 'object', 'properties': {'access_token': {'type': 'string'}}},
                         },
                         '400': {'description': 'Missing fields'},
@@ -137,22 +128,17 @@ def build_swagger_template() -> Dict[str, Any]:
                     },
                 }
             },
+            # 3. ROTA DE REGISTRO
             '/users/register': {
                 'post': {
                     'tags': ['Auth'],
+                    'summary': 'Registers a new user in the system.', # TRADUÇÃO
                     'parameters': [
                         {
                             'in': 'body',
                             'name': 'body',
                             'required': True,
-                            'schema': {
-                                'type': 'object',
-                                'required': ['username', 'password'],
-                                'properties': {
-                                    'username': {'type': 'string'},
-                                    'password': {'type': 'string', 'format': 'password'},
-                                },
-                            },
+                            'schema': {'$ref': '#/definitions/User'},
                         }
                     ],
                     'responses': {
@@ -163,36 +149,61 @@ def build_swagger_template() -> Dict[str, Any]:
                     },
                 }
             },
+            # 4. ROTA DE LISTAGEM DE TICKETS
             '/tickets/list': {
                 'get': {
                     'tags': ['Tickets'],
+                    'summary': 'Returns the list of all open tickets.', # TRADUÇÃO
                     'security': [{'bearerAuth': []}],
                     'responses': {
                         '200': {'description': 'A list of tickets', 'schema': {'type': 'array', 'items': {'$ref': '#/definitions/Ticket'}}},
-                        '404': {'description': 'No tickets found'},
+                        '404': {'description': 'No tickets found (Deprecated, returns 200/empty list)'},
+                        '401': {'description': 'Unauthorized'},
                         '500': {'description': 'Internal server error'},
                     },
                 }
             },
+            # 5. ROTA DE LOGS
+            '/logs': {
+                'get': {
+                    'tags': ['Logs'],
+                    'summary': 'Returns the list of system activity logs.', # TRADUÇÃO
+                    'security': [{'bearerAuth': []}],
+                    'responses': {
+                        '200': {
+                            'description': 'The list of activity logs was returned successfully.', # TRADUÇÃO
+                            'schema': {'type': 'array', 'items': {'$ref': '#/definitions/Log'}}
+                        },
+                        '401': {'description': 'Unauthorized'},
+                        '404': {'description': 'No logs found.'},
+                        '500': {'description': 'Internal server error'},
+                    },
+                }
+            },
+            # 6. ROTAS POR ID (GET, DELETE)
             '/tickets/{ticket_id}': {
                 'parameters': [
                     {'name': 'ticket_id', 'in': 'path', 'required': True, 'type': 'string'}
                 ],
                 'get': {
                     'tags': ['Tickets'],
+                    'summary': 'Retrieves a specific ticket by ID.', # TRADUÇÃO
                     'security': [{'bearerAuth': []}],
                     'responses': {
                         '200': {'description': 'Ticket retrieved', 'schema': {'$ref': '#/definitions/Ticket'}},
                         '404': {'description': 'Ticket not found'},
+                        '401': {'description': 'Unauthorized'},
                         '500': {'description': 'Internal server error'},
                     },
                 },
                 'delete': {
                     'tags': ['Tickets'],
+                    'summary': 'Deletes a specific ticket by ID.', # TRADUÇÃO
                     'security': [{'bearerAuth': []}],
                     'responses': {
                         '200': {'description': 'Ticket deleted'},
                         '404': {'description': 'Ticket not found'},
+                        '401': {'description': 'Unauthorized'},
                         '500': {'description': 'Internal server error'},
                     },
                 },

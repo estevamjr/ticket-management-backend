@@ -54,7 +54,11 @@ def timeout_handler(signum, frame):
 if not IS_WINDOWS:
     @app.before_request
     def start_request_timeout():
-        if request.path.startswith(('/apidocs', '/login', '/users/register', '/auth')):
+        if request.path.startswith((
+            '/apidocs', 
+            '/login', 
+            '/users/register', 
+            '/auth')):
             return
         try:
             signal.signal(signal.SIGALRM, timeout_handler)

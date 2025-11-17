@@ -33,5 +33,8 @@ class UserService:
             return new_user
         except Exception as e:
             db.session.rollback()
-            LogService.create_log("CREATE_USER_ERROR", f"Error creating user '{username}'. Exception: {e}")
+            LogService.create_log(
+                "CREATE_USER_ERROR", 
+                f"Error creating user '{username}'. Exception: {e}"
+            )
             raise e

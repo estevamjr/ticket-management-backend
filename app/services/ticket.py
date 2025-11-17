@@ -5,9 +5,9 @@ from app.models.user import User
 class TicketService:
     
     @staticmethod 
-    def create(data: dict, creator_id: str) -> Ticket: # MUDANÇA 1: Recebe 'creator_id'
+    def create(data: dict, creator_id: str) -> Ticket: 
         try:
-            user_id = creator_id # MUDANÇA 2: O 'user_id' vem do token, não do 'data'
+            user_id = creator_id 
             title = data['title']
 
             creator = User.query.get(user_id)
@@ -21,7 +21,7 @@ class TicketService:
                 title=title, 
                 description=data['description'], 
                 user_id=user_id,
-                status='Aberto', # MUDANÇA 3: Status inicial corrigido
+                status='Open',
                 priority=data['priority'],
                 assignee_id=None
             )

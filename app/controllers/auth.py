@@ -61,22 +61,34 @@ class UserLogin(Resource):
             if user and user.check_password(password):
                 access_token = create_access_token(identity=user.id)
                 
-                # CORREÇÃO: Passar o ID do usuário que logou
-                LogService.create_log("USER_LOGIN_SUCCESS", f"User '{username}' logged in.", user_id=user.id)
+                LogService.create_log(
+                    "USER_LOGIN_SUCCESS", 
+                    f"User '{username}' logged in.", user_id=user.id
+                )
                 
                 return success_200({
                     'access_token': access_token,
                     'user': user.to_json() 
                 })
             
-            # Log de falha (não sabemos o user_id, então 'None')
-            LogService.create_log("USER_LOGIN_ERROR", f"Invalid credentials for user '{username}'", user_id=None)
+            LogService.create_log(
+                "USER_LOGIN_ERROR", 
+                f"Invalid credentials for user '{username}'", 
+                user_id=None
+            )
             return error_401('Invalid credentials')
 
         except OperationalError as e:
             db.session.rollback()
-            LogService.create_log("USER_LOGIN_ERROR", f"Database schema error: {e}", user_id=None)
+            LogService.create_log(
+                "USER_LOGIN_ERROR", f"Database schema error: {e}", 
+                user_id=None
+            )
             return error_500('Database schema mismatch. Have you updated the User model?')
         except Exception as e:
-            LogService.create_log("USER_LOGIN_ERROR", f"Error during login for user {username}: {e}", user_id=None)
-            return error_500(f'An internal error occurred: {str(e)}')
+            LogService.create_log(
+                "USER_LOGIN_ERROR", 
+                f"Error during login for user {username}: {e}", 
+                user_id=None
+            )
+            return error_500('An internal error occurred')
