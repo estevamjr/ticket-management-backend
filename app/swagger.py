@@ -5,7 +5,6 @@ from app.schemas.ticket import (
     TicketCreateSchema,
     TicketSchema,
     UserSchema,
-    # Importar o LogSchema que criamos
     LogSchema, 
 )
 
@@ -51,7 +50,6 @@ def _schema_to_definition(schema_cls: Schema) -> Dict[str, Any]:
 
 def build_swagger_template() -> Dict[str, Any]:
     
-    # 1. ADICIONAR LOG ÀS DEFINIÇÕES
     definitions = {
         'Ticket': _schema_to_definition(TicketSchema),
         'TicketCreate': _schema_to_definition(TicketCreateSchema),
@@ -75,11 +73,10 @@ def build_swagger_template() -> Dict[str, Any]:
             }
         },
         'paths': {
-            # 1. ROTA DE CRIAÇÃO DE TICKET
             '/tickets': {
                 'post': {
                     'tags': ['Tickets'],
-                    'summary': 'Creates a new ticket in the system.', # TRADUÇÃO
+                    'summary': 'Creates a new ticket in the system.', 
                     'security': [{'bearerAuth': []}],
                     'parameters': [
                         {
@@ -92,16 +89,15 @@ def build_swagger_template() -> Dict[str, Any]:
                     'responses': {
                         '201': {'description': 'Ticket created', 'schema': {'$ref': '#/definitions/Ticket'}},
                         '400': {'description': 'Missing or invalid fields'},
-                        '401': {'description': 'Unauthorized'}, # TRADUÇÃO
+                        '401': {'description': 'Unauthorized'}, 
                         '500': {'description': 'Internal server error'},
                     },
                 }
             },
-            # 2. ROTA DE AUTENTICAÇÃO (LOGIN)
             '/auth': {
                 'post': {
                     'tags': ['Auth'],
-                    'summary': 'Authenticates a user and returns the JWT.', # TRADUÇÃO
+                    'summary': 'Authenticates a user and returns the JWT.', 
                     'parameters': [
                         {
                             'in': 'body',
@@ -119,7 +115,7 @@ def build_swagger_template() -> Dict[str, Any]:
                     ],
                     'responses': {
                         '200': {
-                            'description': 'Returns access token and user data.', # TRADUÇÃO
+                            'description': 'Returns access token and user data.', 
                             'schema': {'type': 'object', 'properties': {'access_token': {'type': 'string'}}},
                         },
                         '400': {'description': 'Missing fields'},
@@ -128,17 +124,23 @@ def build_swagger_template() -> Dict[str, Any]:
                     },
                 }
             },
-            # 3. ROTA DE REGISTRO
             '/users/register': {
                 'post': {
                     'tags': ['Auth'],
-                    'summary': 'Registers a new user in the system.', # TRADUÇÃO
+                    'summary': 'Registers a new user in the system.', 
                     'parameters': [
                         {
                             'in': 'body',
                             'name': 'body',
                             'required': True,
-                            'schema': {'$ref': '#/definitions/User'},
+                            'schema': {
+                                'type': 'object',
+                                'required': ['username', 'password'],
+                                'properties': {
+                                    'username': {'type': 'string'},
+                                    'password': {'type': 'string'},
+                                },
+                            }
                         }
                     ],
                     'responses': {
@@ -149,11 +151,10 @@ def build_swagger_template() -> Dict[str, Any]:
                     },
                 }
             },
-            # 4. ROTA DE LISTAGEM DE TICKETS
             '/tickets/list': {
                 'get': {
                     'tags': ['Tickets'],
-                    'summary': 'Returns the list of all open tickets.', # TRADUÇÃO
+                    'summary': 'Returns the list of all open tickets.', 
                     'security': [{'bearerAuth': []}],
                     'responses': {
                         '200': {'description': 'A list of tickets', 'schema': {'type': 'array', 'items': {'$ref': '#/definitions/Ticket'}}},
@@ -163,15 +164,14 @@ def build_swagger_template() -> Dict[str, Any]:
                     },
                 }
             },
-            # 5. ROTA DE LOGS
             '/logs': {
                 'get': {
                     'tags': ['Logs'],
-                    'summary': 'Returns the list of system activity logs.', # TRADUÇÃO
+                    'summary': 'Returns the list of system activity logs.', 
                     'security': [{'bearerAuth': []}],
                     'responses': {
                         '200': {
-                            'description': 'The list of activity logs was returned successfully.', # TRADUÇÃO
+                            'description': 'The list of activity logs was returned successfully.', 
                             'schema': {'type': 'array', 'items': {'$ref': '#/definitions/Log'}}
                         },
                         '401': {'description': 'Unauthorized'},
@@ -180,14 +180,13 @@ def build_swagger_template() -> Dict[str, Any]:
                     },
                 }
             },
-            # 6. ROTAS POR ID (GET, DELETE)
             '/tickets/{ticket_id}': {
                 'parameters': [
                     {'name': 'ticket_id', 'in': 'path', 'required': True, 'type': 'string'}
                 ],
                 'get': {
                     'tags': ['Tickets'],
-                    'summary': 'Retrieves a specific ticket by ID.', # TRADUÇÃO
+                    'summary': 'Retrieves a specific ticket by ID.', 
                     'security': [{'bearerAuth': []}],
                     'responses': {
                         '200': {'description': 'Ticket retrieved', 'schema': {'$ref': '#/definitions/Ticket'}},
@@ -198,7 +197,7 @@ def build_swagger_template() -> Dict[str, Any]:
                 },
                 'delete': {
                     'tags': ['Tickets'],
-                    'summary': 'Deletes a specific ticket by ID.', # TRADUÇÃO
+                    'summary': 'Deletes a specific ticket by ID.', 
                     'security': [{'bearerAuth': []}],
                     'responses': {
                         '200': {'description': 'Ticket deleted'},

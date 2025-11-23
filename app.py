@@ -1,19 +1,13 @@
 from flask import Flask, request
 from flask_restful import Api
 from flask_cors import CORS
-from app.utils.db import resetAndCreateDb
 from flasgger import Swagger
 from app.swagger import build_swagger_template
 import signal
-import os, errno
-from app.models import create_database
+import os
 from app.controllers.ticket import initializeRoutes
 from app.controllers.log import initializeLogRoutes
 from app.controllers.auth import initializeAuthRoutes
-from app.models.user import User
-from app.models.ticket import Ticket
-from app.models.log import Log
-from app.models.attachment import Attachment
 from app.utils.httpResponses import error_504
 from app.config import REQUEST_TIMEOUT, SECRET_KEY
 from flask_jwt_extended import JWTManager

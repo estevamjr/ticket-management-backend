@@ -6,6 +6,7 @@ from app.utils.httpResponses import success_200, success_201, error_400, error_4
 from app.services.log import LogService 
 from sqlalchemy.exc import OperationalError
 from flask_jwt_extended import create_access_token
+from app.schemas.ticket import UserSchema
 
 def initializeAuthRoutes(api: Api):
     api.add_resource(UserRegister, '/users/register')
@@ -15,8 +16,11 @@ class UserRegister(Resource):
     def post(self):
         data = request.get_json()
         if not data or not data.get('username') or not data.get('password'):
-            # Não temos user_id aqui ainda, então 'None' está correto
-            LogService.create_log("USER_REGISTER_ERROR", "Missing username or password", user_id=None)
+            LogService.create_log(
+                "USER_REGISTER_ERROR", 
+                "Missing username or password", 
+                user_id=None
+            )
             return error_400('Missing username or password')
 
         username = data['username']
@@ -24,7 +28,11 @@ class UserRegister(Resource):
 
         try:
             if User.query.filter_by(username=username).first():
-                LogService.create_log("USER_REGISTER_ERROR", f"User {username} already exists", user_id=None)
+                LogService.create_log(
+                    "USER_REGISTER_ERROR", 
+                    f"User {username} already exists", 
+                    user_id=None
+                )
                 return error_409(f'User {username} already exists')
 
             new_user = User(username=username)
@@ -32,18 +40,32 @@ class UserRegister(Resource):
             db.session.add(new_user)
             db.session.commit()
             db.session.refresh(new_user) 
+            
+            user_schema = UserSchema()
+            user_data = user_schema.dump(new_user)
 
-            # CORREÇÃO: Passar o ID do usuário recém-criado
-            LogService.create_log("USER_REGISTER_SUCCESS", f"User {username} created successfully", user_id=new_user.id)
-            return success_201(new_user)
+            LogService.create_log(
+                "USER_REGISTER_SUCCESS", 
+                f"User {username} created successfully", 
+                user_id=new_user.id
+            )
+            return success_201(user_data)
 
         except OperationalError as e:
             db.session.rollback()
-            LogService.create_log("USER_REGISTER_ERROR", f"Database schema error: {e}", user_id=None)
+            LogService.create_log(
+                "USER_REGISTER_ERROR", 
+                f"Database schema error: {e}", 
+                user_id=None
+            )
             return error_500('Database schema mismatch. Have you updated the User model?')
         except Exception as e:
             db.session.rollback()
-            LogService.create_log("USER_REGISTER_ERROR", f"Error creating user {username}: {e}", user_id=None)
+            LogService.create_log(
+                "USER_REGISTER_ERROR", 
+                f"Error creating user {username}: {e}", 
+                user_id=None
+            )
             return error_500(f'An internal error occurred: {str(e)}')
 
 class UserLogin(Resource):

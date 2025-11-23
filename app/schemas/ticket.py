@@ -16,8 +16,15 @@ def _set_field_default(field: fields.Field, value):
             pass
 
 class UserSchema(Schema):
-    id = fields.String(dump_only=True, metadata={"description": "Database ID of the user (UUID)"}) 
-    username = fields.Str(required=True, metadata={"description": "Username"})
+    id = fields.String(
+        dump_only=True, 
+        metadata={"description": "Database ID of the user (UUID)"}
+    )
+     
+    username = fields.Str(
+        required=True, 
+        metadata={"description": "Username"}
+    )
 
     class Meta:
         ordered = True
@@ -51,14 +58,21 @@ class TicketBaseSchema(Schema):
     tags = fields.List(fields.Str(), metadata={"description": "Optional list of tags"})
     _set_field_default(tags, list)
 
-    due_date = fields.DateTime(allow_none=True, metadata={"description": "Optional due date/time for the ticket"})
+    due_date = fields.DateTime(
+        allow_none=True, 
+        metadata={"description": "Optional due date/time for the ticket"}
+    )
 
     class Meta:
         ordered = True
         unknown = EXCLUDE
 
 class TicketCreateSchema(TicketBaseSchema):
-    assignee_id = fields.String(allow_none=True, metadata={"description": "User ID (UUID) assigned to work the ticket"})
+    
+    assignee_id = fields.String(
+        allow_none=True, 
+        metadata={"description": "User ID (UUID) assigned to work the ticket"}
+    )
 
 class TicketUpdateSchema(Schema):
     title = fields.Str(validate=validate.Length(min=1, max=200))
@@ -91,10 +105,24 @@ class TicketSchema(TicketInDBBaseSchema):
     assignee = fields.Nested(UserSchema, dump_only=True, allow_none=True)
     
 class LogSchema(Schema):
-    id = fields.Str(required=True, metadata={"description": "UUID do registro de log"})
-    timestamp = fields.DateTime(required=True, metadata={"description": "Data e hora do evento"})
-    action = fields.Str(required=True, metadata={"description": "Tipo de ação (ex: CREATE_TICKET_SUCCESS)"})
-    details = fields.Str(allow_none=True, metadata={"description": "Detalhes da ação executada"})
+    id = fields.Str(
+        required=True, 
+        metadata={"description": "UUID do registro de log"}
+    )
+    timestamp = fields.DateTime(
+        required=True, 
+        metadata={"description": "Data e hora do evento"}
+    )
+    
+    action = fields.Str(
+        required=True, 
+        metadata={"description": "Tipo de ação (ex: CREATE_TICKET_SUCCESS)"}
+    )
+    
+    details = fields.Str(
+        allow_none=True, 
+        metadata={"description": "Detalhes da ação executada"}
+    )
 
     class Meta:
         model = Log 

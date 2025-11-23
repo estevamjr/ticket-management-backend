@@ -54,10 +54,10 @@ class Ticket(db.Model):
         db.ForeignKey('users.id')
     ) 
     
-    attachments = db.relationship(
-        'Attachment', 
-        back_populates='ticket', 
-        lazy=True
+    attachments = db.Column(
+        db.String(300), 
+        default='...', 
+        nullable=True
     )
     
     creator = db.relationship(

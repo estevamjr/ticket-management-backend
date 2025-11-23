@@ -1,6 +1,3 @@
-#
-# COPIE E COLE ISSO EM: app/services/log.py
-#
 from app.extensions import db
 from app.models.log import Log
 from sqlalchemy import desc
