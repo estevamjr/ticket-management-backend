@@ -3,66 +3,62 @@ from app.models.ticket import Ticket
 from app.models.user import User 
 
 class TicketService:
-    
     @staticmethod 
-    def create(data: dict, creator_id: str) -> Ticket: 
+    def create(data, creator_id): 
         try:
-            user_id = creator_id 
             title = data['title']
-
-            creator = User.query.get(user_id)
-            if not creator:
-                return "USER_NOT_FOUND" 
-
-            if Ticket.query.filter_by(title=title).first():
-                return None
-
-            newRegister = Ticket(
+            if not User.query.get(creator_id): return "USER_NOT_FOUND" 
+            
+            # Idempotência: Não cria se houver um ticket [IA] 'Open' idêntico
+            if title.startswith('[IA]'):
+                existing = Ticket.query.filter_by(title=title, status='Open').first()
+                if existing: return existing
+                
+            new_t = Ticket(
                 title=title, 
                 description=data['description'], 
-                user_id=user_id,
-                status='Open',
-                priority=data['priority'],
-                assignee_id=None
+                user_id=creator_id, 
+                status='Open', 
+                priority=data['priority']
             )
-            db.session.add(newRegister)
+            db.session.add(new_t)
             db.session.commit()
-            return newRegister
-            
+            return new_t
         except Exception as e:
             db.session.rollback()
-            print(f"Error in DB: {e}")
             raise e
-    
+
     @staticmethod
-    def deleteFisical(ticketId: str) -> bool:
+    def update_status(ticket_id, new_status):
+        """Atualiza o status do ticket no banco após o drag-and-drop"""
         try:
-            ticket = Ticket.query.get(ticketId)
+            ticket = Ticket.query.get(ticket_id)
             if ticket:
-                db.session.delete(ticket)
+                ticket.status = new_status
                 db.session.commit()
-                return True
-            return False
+                return ticket
+            return None
         except Exception as e:
             db.session.rollback()
-            print(f"Error in DB when delete {ticketId}: {e}")
             raise e
     
     @staticmethod
-    def getAll() -> list[Ticket]:
-        try:
-            return Ticket.query.options(
-                db.joinedload(Ticket.creator),
-                db.joinedload(Ticket.assignee)
-            ).order_by(Ticket.priority.desc()).all()
-        except Exception as e:
-            print(f"Error in DB: {e}")
-            raise e
-        
+    def getAll():
+        return Ticket.query.options(db.joinedload(Ticket.creator)).order_by(Ticket.priority.desc()).all()
+
     @staticmethod
-    def getById(ticketId: str) -> Ticket | None:
-        try:
-            return Ticket.query.get(ticketId)
-        except Exception as e:
-            print(f"Error in DB: {e}")
-            raise e    
+    def deleteFisical(tid):
+        t = Ticket.query.get(tid)
+        if t: 
+            db.session.delete(t)
+            db.session.commit()
+            return True
+        return False
+
+    @staticmethod
+    def getById(tid):
+        return Ticket.query.get(tid)
+
+__all__ = [
+    "TicketService",
+]

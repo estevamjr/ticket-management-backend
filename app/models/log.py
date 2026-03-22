@@ -1,6 +1,3 @@
-#
-# COPIE E COLE ISSO EM: app/models/log.py
-#
 from app.extensions import db
 import uuid
 from datetime import datetime
@@ -29,6 +26,14 @@ class Log(db.Model):
         db.String(255), 
         nullable=True
     )
+
+    # --- NOVOS CAMPOS PARA O MVP DE IA ---
+    cpu_usage = db.Column(db.Float, nullable=True)
+    ram_usage = db.Column(db.Float, nullable=True)
+    active_threats = db.Column(db.Integer, nullable=True)
+    untrusted_processes = db.Column(db.Integer, nullable=True)
+    andon_status = db.Column(db.Integer, nullable=True) # 0, 1 ou 2
+    # --------------------------------------
     
     user_id = db.Column(
         db.String(36), 
@@ -47,5 +52,11 @@ class Log(db.Model):
             "timestamp": self.timestamp.isoformat(),
             "action": self.action,
             "details": self.details,
-            "user_id": self.user_id
+            "user_id": self.user_id,
+            # Incluindo os novos campos no JSON de retorno
+            "cpu_usage": self.cpu_usage,
+            "ram_usage": self.ram_usage,
+            "active_threats": self.active_threats,
+            "untrusted_processes": self.untrusted_processes,
+            "andon_status": self.andon_status
         }

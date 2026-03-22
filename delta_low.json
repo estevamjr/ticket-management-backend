@@ -1,0 +1,26 @@
+[
+  {
+    "device_id": "WS-NORMAL-01",
+    "metrics": { "cpu_usage_pct": 15.2, "mem_available_gb": 10.5, "active_threats": 0, "untrusted_processes": 0 }
+  },
+  {
+    "device_id": "WS-NORMAL-02",
+    "metrics": { "cpu_usage_pct": 22.8, "mem_available_gb": 8.0, "active_threats": 0, "untrusted_processes": 1 }
+  },
+  {
+    "device_id": "WS-WARNING-01",
+    "metrics": { "cpu_usage_pct": 88.5, "mem_available_gb": 1.2, "active_threats": 0, "untrusted_processes": 2 }
+  },
+  {
+    "device_id": "WS-WARNING-02",
+    "metrics": { "cpu_usage_pct": 92.1, "mem_available_gb": 0.8, "active_threats": 0, "untrusted_processes": 1 }
+  },
+  {
+    "device_id": "WS-CRITICAL-01",
+    "metrics": { "cpu_usage_pct": 98.5, "mem_available_gb": 0.2, "active_threats": 5, "untrusted_processes": 8 }
+  },
+  {
+    "device_id": "WS-CRITICAL-02",
+    "metrics": { "cpu_usage_pct": 85.0, "mem_available_gb": 1.5, "active_threats": 3, "untrusted_processes": 6 }
+  }
+]

@@ -8,3 +8,7 @@ Flask-JWT-Extended
 Flask-Bcrypt
 flask-marshmallow
 marshmallow-sqlalchemy
+scikit-learn
+numpy
+joblib
+pytest
