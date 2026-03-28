@@ -24,7 +24,6 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
-    # A HORA DA VERDADE (COM O PYTHONPATH CONFIGURADO)
     - name: Run Tests with PyTest
       env:
         PYTHONPATH: .

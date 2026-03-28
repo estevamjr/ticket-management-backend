@@ -24,7 +24,6 @@ class TicketCreateResource(Resource):
         except Exception as e:
             return error_500(str(e))
 
-# NOVO: Resource para atualizar o Ticket individualmente
 class TicketResource(Resource):
     @jwt_required()
     def put(self, ticket_id):

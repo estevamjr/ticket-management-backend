@@ -9,7 +9,6 @@ class TicketService:
             title = data['title']
             if not User.query.get(creator_id): return "USER_NOT_FOUND" 
             
-            # Idempotência: Não cria se houver um ticket [IA] 'Open' idêntico
             if title.startswith('[IA]'):
                 existing = Ticket.query.filter_by(title=title, status='Open').first()
                 if existing: return existing
@@ -21,6 +20,7 @@ class TicketService:
                 status='Open', 
                 priority=data['priority']
             )
+            
             db.session.add(new_t)
             db.session.commit()
             return new_t
@@ -30,7 +30,6 @@ class TicketService:
 
     @staticmethod
     def update_status(ticket_id, new_status):
-        """Atualiza o status do ticket no banco após o drag-and-drop"""
         try:
             ticket = Ticket.query.get(ticket_id)
             if ticket:

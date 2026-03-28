@@ -27,13 +27,30 @@ class Log(db.Model):
         nullable=True
     )
 
-    # --- NOVOS CAMPOS PARA O MVP DE IA ---
-    cpu_usage = db.Column(db.Float, nullable=True)
-    ram_usage = db.Column(db.Float, nullable=True)
-    active_threats = db.Column(db.Integer, nullable=True)
-    untrusted_processes = db.Column(db.Integer, nullable=True)
-    andon_status = db.Column(db.Integer, nullable=True) # 0, 1 ou 2
-    # --------------------------------------
+    cpu_usage = db.Column(
+        db.Float, 
+        nullable=True
+    )
+    
+    ram_usage = db.Column(
+        db.Float, 
+        nullable=True
+    )
+    
+    active_threats = db.Column(
+        db.Integer, 
+        nullable=True
+    )
+    
+    untrusted_processes = db.Column(
+        db.Integer, 
+        nullable=True
+    )
+    
+    andon_status = db.Column(
+        db.Integer, 
+        nullable=True
+    ) # 0, 1 ou 2
     
     user_id = db.Column(
         db.String(36), 
@@ -53,7 +70,6 @@ class Log(db.Model):
             "action": self.action,
             "details": self.details,
             "user_id": self.user_id,
-            # Incluindo os novos campos no JSON de retorno
             "cpu_usage": self.cpu_usage,
             "ram_usage": self.ram_usage,
             "active_threats": self.active_threats,

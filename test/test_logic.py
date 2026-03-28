@@ -5,40 +5,39 @@ from app.ml_logic.predictor import AndonPredictor
 
 @pytest.fixture
 def predictor():
-    """Instancia o preditor uma vez para todos os testes."""
     return AndonPredictor()
 
 def test_model_loading(predictor):
-    """Verifica se o arquivo .pkl foi carregado com sucesso."""
+    """Verify that the AI model is loaded successfully."""
     assert predictor.model is not None, "O modelo .pkl não foi carregado corretamente!"
 
 def test_model_performance_threshold(predictor):
     """
-    REQUISITO 5 DO MVP: Assegurar que o modelo atenda aos requisitos de 
-    desempenho estabelecidos. O Threshold definido é de 80% (0.80) de acurácia.
+    Requirement 5 of the MVP: Ensure the model meets established performance requirements. 
+    The defined threshold is 80% (0.80) accuracy.
     """
-    # 1. Massa de dados simulada para validação do desempenho
-    # Ordem das features: CPU, RAM, Threats, Untrusted
+    # 1. Data set simulated for performance validation
+    # Order of featires: CPU Usage (%), RAM Available (GB), Active Threats, Untrusted Processes
     X_validation = [
-        (98.5, 0.2, 5, 8),  # Esperado: 2 (Crítico)
-        (12.0, 14.5, 0, 0), # Esperado: 0 (Normal)
-        (85.0, 1.5, 0, 1),  # Esperado: 1 (Alerta)
-        (37.6, 6.5,  0, 0), # Esperado: 0 (Normal)
-        (54.6, 1.6,  3, 9)  # Esperado: 2 (Crítico)
+        (98.5, 0.2, 5, 8),  # Expected: 2 (Critical)
+        (12.0, 14.5, 0, 0), # Expected: 0 (Normal)
+        (85.0, 1.5, 0, 1),  # Expected: 1 (Alert)
+        (37.6, 6.5,  0, 0), # Expected: 0 (Normal)
+        (54.6, 1.6,  3, 9)  # Expected: 2 (Critical)
     ]
     
-    # Rótulos verdadeiros (Ground Truth)
+    # Trusted Labels (Ground Truth)
     y_true = [2, 0, 1, 0, 2]
     
-    # 2. Ignorar os warnings de 'Feature Names' gerados pelo Scikit-Learn durante o predict de arrays puros
+    # 2. Warnings ignored due to sklearn's feature name warnings when predicting with raw arrays
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
-        # 3. Gerar as predições do modelo embarcado
+        # 3. Generate predictions using the model
         y_pred = [predictor.predict(cpu=x[0], ram=x[1], threats=x[2], untrusted=x[3]) for x in X_validation]
 
-    # 4. Calcular métrica adequada (Acurácia)
+    # 4. Calculate accuracy of the model
     acc = accuracy_score(y_true, y_pred)
     
-    # 5. Threshold (Valor Limite Aceitável)
+    # 5. Threshold (Aceptable performance level) defined at 80%
     THRESHOLD = 0.80
-    assert acc >= THRESHOLD, f"Falha no CI/CD: Acurácia do modelo ({acc*100}%) está abaixo do limite aceitável de {THRESHOLD*100}%"
+    assert acc >= THRESHOLD, f"CI/CD Failure:  Model accuracy ({acc*100}%) is below the acceptable threshold of {THRESHOLD*100}%"

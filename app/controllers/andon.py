@@ -17,14 +17,19 @@ class AndonResource(Resource):
             current_user_id = get_jwt_identity()
             data = request.get_json()
 
-            required = ['device_id', 'cpu_usage_pct', 'mem_available_gb', 'active_threats', 'untrusted_processes']
+            required = [
+                'device_id', 
+                'cpu_usage_pct', 
+                'mem_available_gb', 
+                'active_threats', 
+                'untrusted_processes'
+            ]
+            
             if not all(field in data for field in required):
                 return error_400("Missing required telemetry fields")
 
-            # Processamento via IA
             analysis_log = AndonService.analyze_telemetry(data)
 
-            # Log de Auditoria
             LogService.create_log(
                 "AI_ANDON_ANALYSIS", 
                 f"Analysis for device: {data['device_id']} - Status: {analysis_log.andon_status}", 
