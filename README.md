@@ -1,7 +1,7 @@
 # 🎫 Ticket-Andon-IT: Intelligent Management System
 
-* **YouTube Link: https://youtu.be/e-ixaa0pKbE
-* **Colab Link: https://colab.research.google.com/drive/1UaHgelLPBvZwZfYv5ILHBWwDSRAvTfJO#scrollTo=uhBZK6EA-ie6
+* **YouTube Link:** https://youtu.be/e-ixaa0pKbE
+* **Colab Link:** https://colab.research.google.com/drive/1UaHgelLPBvZwZfYv5ILHBWwDSRAvTfJO#scrollTo=uhBZK6EA-ie6
 
 ## 🚀 Overview
 
